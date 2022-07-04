@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: ${env.POSTGRES_PASSWORD}
+  jpa:
+    generate-ddl: true
+    show-sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://dev-sz67ap41.us.auth0.com/.well-known/jwks.json
+
+server:
+  error:
+    include-stacktrace: never
+
+security:
+  oauth2:
+    resource:
+      id: https://udacity.luoma.dev
+
+auth0:
+  domain: dev-sz67ap41.us.auth0.com
+  clientId: ITKpfwTGPrHyidIFIUIxmB0AhHLTQOZe

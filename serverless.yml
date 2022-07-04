@@ -1,0 +1,75 @@
+service: capstone-image-storage
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-plugin-tracing
+
+provider:
+  name: aws
+  runtime: go1.x
+  lambdaHashingVersion: 20201221
+
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+
+  tracing:
+    lambda: true
+    apiGateway: true
+
+  environment:
+    ATTACHMENT_S3_BUCKET: capstone-image-storage-981561515630-${self:provider.stage}
+    SIGNED_URL_EXPIRATION: 300
+    AUTH_API_ID: https://udacity.luoma.dev
+    AUTH_API_DOMAIN: dev-sz67ap41.us.auth0.com
+
+  logs:
+    # Enable API Gateway logs
+    restApi: true
+
+  httpApi:
+    authorizers:
+      auth:
+        type: request
+        functionName: auth
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - xray:PutTelemetryRecords
+            - xray:PutTraceSegments
+          Resource: "*"
+
+package:
+  exclude:
+    - ./**
+  include:
+    - ./gobin/**
+
+functions:
+  auth:
+    handler: gobin/auth
+
+  hello-world:
+    handler: gobin/hello-world
+    events:
+      - http:
+          path: /hello
+          method: get
+          cors: true
+          authorizer:
+            name: auth
+
+resources:
+  Resources:
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
