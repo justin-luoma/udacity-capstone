@@ -9,6 +9,9 @@ gobin/
 node_modules/
 .serverless/
 gopath/
+.cache/
+dist/
+.parcel-cache/
 
 ### STS ###
 .apt_generated

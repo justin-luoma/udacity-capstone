@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"os"
 	"strings"
+	"time"
 )
 
 const AUTH_API_ID = "AUTH_API_ID"
@@ -22,7 +23,6 @@ func authorize(event events.APIGatewayV2CustomAuthorizerV1Request) (events.
 	fmt.Printf("id: %s\ndomain: %s\n", apiId, apiDomain)
 
 	fmt.Println("running authorize")
-	fmt.Println(event.AuthorizationToken)
 
 	fmt.Printf("event: %+v\n", event)
 
@@ -32,6 +32,13 @@ func authorize(event events.APIGatewayV2CustomAuthorizerV1Request) (events.
 
 		parsedJwt, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 			fmt.Printf("parsing token: %+v\n", token)
+
+			now := time.Now()
+
+			checkExpired := token.Claims.(jwt.MapClaims).VerifyExpiresAt(now.Unix(), true)
+			if !checkExpired {
+				return token, errors.New("expired token")
+			}
 
 			checkAudience := token.Claims.(jwt.MapClaims).VerifyAudience(apiId, true)
 			if !checkAudience {
@@ -64,14 +71,15 @@ func authorize(event events.APIGatewayV2CustomAuthorizerV1Request) (events.
 
 		if err != nil {
 			fmt.Printf("parse error: %s\n", err.Error())
-		}
+		} else {
 
-		fmt.Printf("parsedJwt: %+v\n", parsedJwt)
+			fmt.Printf("parsedJwt: %+v\n", parsedJwt)
 
-		if parsedJwt.Valid {
-			sub, ok := parsedJwt.Claims.(jwt.MapClaims)["sub"].(string)
-			if ok {
-				return generatePolicy(sub, "Allow"), nil
+			if parsedJwt.Valid {
+				sub, ok := parsedJwt.Claims.(jwt.MapClaims)["sub"].(string)
+				if ok {
+					return generatePolicy(sub, "Allow"), nil
+				}
 			}
 		}
 	}

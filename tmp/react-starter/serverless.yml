@@ -1,0 +1,9 @@
+name: udacity-capstone-client
+component: website
+stage: dev
+
+inputs:
+  src:
+    src: ./src
+    hook: npm run build
+    dist: ./dist

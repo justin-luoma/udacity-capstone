@@ -17,7 +17,7 @@ provider:
     apiGateway: true
 
   environment:
-    ATTACHMENT_S3_BUCKET: capstone-image-storage-981561515630-${self:provider.stage}
+    IMAGE_S3_BUCKET: capstone-image-storage-981561515630-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     AUTH_API_ID: https://udacity.luoma.dev
     AUTH_API_DOMAIN: dev-sz67ap41.us.auth0.com
@@ -50,7 +50,23 @@ package:
 functions:
   auth:
     handler: gobin/auth
-
+    
+  create-image-url:
+    handler: gobin/image
+    events:
+      - http: 
+          path: /images/{id}
+          method: post
+          cors: true
+          authorizer: 
+            name: auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.IMAGE_S3_BUCKET}/*
+          
   hello-world:
     handler: gobin/hello-world
     events:
@@ -73,3 +89,36 @@ resources:
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: ApiGatewayRestApi
+
+    ImageBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.IMAGE_S3_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: ImageBucketPolicy
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource: 'arn:aws:s3:::${self:provider.environment.IMAGE_S3_BUCKET}/*'
+        Bucket: !Ref ImageBucket

@@ -69,8 +69,13 @@ public class PostBO {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
-    post.setText(updatePostRequest.getText());
-    post.setImageUrl(updatePostRequest.getImageUrl());
+    if (updatePostRequest.getText() != null) {
+      post.setText(updatePostRequest.getText());
+    }
+    if (updatePostRequest.getImageUrl() != null) {
+      post.setImageUrl(updatePostRequest.getImageUrl());
+    }
+
     final var updatedPost = postRepo.save(post);
 
     return PostResponseRO.builder()

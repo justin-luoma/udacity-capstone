@@ -5,7 +5,7 @@ functions := $(shell find lambda/functions -name \*main.go | awk -F '/' '{print 
 
 build: lambda/functions
 	@for function in $(functions) ; do \
-		env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o gobin/$$function lambda/functions/$$function/main.go; \
+		env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o gobin/$$function lambda/functions/$$function/*.go; \
 	done
 
 deploy: build
