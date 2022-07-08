@@ -24,20 +24,10 @@ before_script:
 
 build:
   stage: build
-  script: gradle --build-cache build -xtest
+  script: gradle --build-cache build jib -xtest
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: push
-    paths:
-      - build
-      - .gradle
-
-test:
-  stage: test
-  script: ls -al
-  cache:
-    key: "$CI_COMMIT_REF_NAME"
-    policy: pull
     paths:
       - build
       - .gradle
