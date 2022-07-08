@@ -15,7 +15,7 @@ You will need a token, the UI will output the token to the developer console aft
 
 ## Structure
 
-#### Lambdas
+### Lambdas
 [auth](lambda/functions/auth):
 
 Custom Authorizer
@@ -24,13 +24,13 @@ Custom Authorizer
 
 Creates S3 signed url for image storage
 
-#### Backend
+### Backend
 
 [posts service](backend)
 
 Spring Boot API used to interact with database to store posts
 
-#### Client
+### Client
 
 [posts client](client)
 
