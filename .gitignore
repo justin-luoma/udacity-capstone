@@ -12,6 +12,7 @@ gopath/
 .cache/
 dist/
 .parcel-cache/
+backend/env-secret.yaml
 
 ### STS ###
 .apt_generated
