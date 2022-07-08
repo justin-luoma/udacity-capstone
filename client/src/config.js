@@ -1,8 +1,6 @@
 const env = process.env.NODE_ENV;
 
-
-const apiId = 'i65si6ec8c';
-export const POST_API_ENDPOINT = env && env === 'development' ? "http://localhost:8080/api" : `https://${apiId}.execute-api.us-east-1.amazonaws.com/dev`;
+export const POST_API_ENDPOINT = env && env === 'development' ? "http://localhost:8080/api" : `https://capstone-backend.luoma.dev/api`;
 
 export const IMAGE_API_ENDPOINT = "https://exkrmn2pt6.execute-api.us-east-1.amazonaws.com/dev";
 

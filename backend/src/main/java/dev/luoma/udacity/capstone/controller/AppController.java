@@ -28,7 +28,7 @@ public class AppController {
   @ResponseBody
   public String publicEndpoint() {
     return new JSONObject()
-        .put("message", "Hello from a public endpoint! You don\'t need to be authenticated to see this.")
+        .put("message", "Hello from a public endpoint! You don't need to be authenticated to see this.")
         .toString();
   }
 

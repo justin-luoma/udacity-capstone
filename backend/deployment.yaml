@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udacity-capstone
+  labels:
+    app: udacity-capstone
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: udacity-capstone
+  template:
+    metadata:
+      labels:
+        app: udacity-capstone
+    spec:
+      containers:
+      - name: udacity-capstone
+        image: caboose0013/udacity-capstone:latest
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: Always
+        envFrom:
+          - secretRef:
+              name: env-secret
+              optional: false
+          - configMapRef:
+              name: env-configmap
+              optional: false

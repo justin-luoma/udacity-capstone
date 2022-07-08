@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {Route, Routes, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import LogIn from "./components/LogIn";
-import NotFound from "./components/NotFound";
 import {Button, Col, Container, Modal, Nav, Navbar, Row, Spinner} from "react-bootstrap";
 import {useAuth0} from "@auth0/auth0-react";
 import Posts from "./components/posts/Posts";
+import {authConfig} from "./config";
 
 const App = () => {
     const {logout, isAuthenticated, getAccessTokenSilently, loginWithPopup} = useAuth0();
@@ -21,10 +21,6 @@ const App = () => {
         printAccessToken();
     }
 
-    useEffect(() => {
-        console.log("App");
-    }, [isAuthenticated]);
-
     const handleLogin = async () => {
         setLoading(true);
         await loginWithPopup();
@@ -32,7 +28,7 @@ const App = () => {
     }
 
     const handleLogout = () => {
-        logout();
+        logout({returnTo: authConfig.callbackUrl});
     }
 
     const logInLogOutButton = () => {
@@ -79,38 +75,13 @@ const App = () => {
         )
     }
 
-    const generateCurrentPage = () => {
-        if (!isAuthenticated) {
-            return <LogIn/>
-        }
-
-        return (
-            <Routes>
-                <Route
-                    path="/"
-                    element={<Posts createPostRef={createPostRef} />}
-                />
-
-                {/*<Route*/}
-                {/*  path="/todos/:todoId/edit"*/}
-                {/*  exact*/}
-                {/*  render={props => {*/}
-                {/*    return <EditTodo {...props} auth={this.props.auth} />*/}
-                {/*  }}*/}
-                {/*/>*/}
-
-                <Route path="*" element={<NotFound/>}/>
-            </Routes>
-        )
-    }
-
     return (
         <>
             {generateMenu()}
             <Container>
                 <Row className="justify-content-center">
-                    <Col className="col-6 justify-content-center text-center">
-                        {isAuthenticated ? <Posts key="posts" setCreatePostRef={setCreatePostRef} /> : <LogIn />}
+                    <Col className="col-8 justify-content-center text-center">
+                        {isAuthenticated ? <Posts key="posts" setCreatePostRef={setCreatePostRef}/> : <LogIn/>}
                     </Col>
                 </Row>
             </Container>

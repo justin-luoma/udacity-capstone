@@ -10,14 +10,6 @@ const getImageUrl = async (id, accessToken) => {
         });
 
         return resp.data;
-        // const resp = await fetch(`${IMAGE_API_ENDPOINT}/images/${id}`, {
-        //     method: "POST",
-        //     headers: {
-        //         "Authorization": `Bearer ${accessToken}`,
-        //     },
-        // });
-        //
-        // return await resp.json();
     } catch (err) {
         console.error(err);
         return null;

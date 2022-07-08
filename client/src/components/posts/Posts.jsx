@@ -1,20 +1,25 @@
 import React, {useEffect, useState} from 'react';
 import {useAuth0} from "@auth0/auth0-react";
-import {createPost, getPosts, updatePost} from "../../api/posts/postApi";
+import {createPost, deletePost, getPosts, updatePost} from "../../api/posts/postApi";
 import Post from "./Post";
 import {Modal, Nav, Row, Spinner} from "react-bootstrap";
 import CreatePost from "./CreatePost.";
 import {uploadImage} from "../../api/images/imageApi";
+import EditPost from "./EditPost";
 
 const Posts = ({setCreatePostRef: setCreatePostRef}) => {
     const {getAccessTokenSilently} = useAuth0();
     const [loading, setLoading] = useState(true);
     const [posts, setPosts] = useState(null);
     const [showCreateModel, setShowCreateModel] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [validated, setValidated] = useState(false);
+    const [editValidated, setEditValidated] = useState(false);
+    const [editingPost, setEditingPost] = useState(null);
 
     const fetchPosts = async () => {
         const token = await getAccessTokenSilently();
+        setPosts(null);
         setPosts(await getPosts(token));
         setLoading(false);
     };
@@ -60,6 +65,41 @@ const Posts = ({setCreatePostRef: setCreatePostRef}) => {
         setShowCreateModel(true);
     };
 
+    const handleEdit = async (post) => {
+        setEditingPost(post);
+        setShowEditModal(true);
+    };
+
+    const handleDelete = async (id) => {
+        const token = await getAccessTokenSilently();
+        await deletePost(id, token);
+        await fetchPosts();
+    };
+
+    const handleEditSubmit = async (values, post) => {
+        console.log("edit submit: ", values);
+        setShowEditModal(false);
+        setLoading(true);
+        const token = await getAccessTokenSilently();
+        if (values.text !== post.text && values.image !== undefined) {
+            console.log("update both")
+            const imageUrl = await uploadImage(post.id, values.image, token);
+            await updatePost(post.id, {
+                "text": values.text,
+                "imageUrl": imageUrl,
+            }, token);
+        } else if (values.text !== post.text && values.image === undefined) {
+            console.log("update text")
+            await updatePost(post.id, {
+                "text": values.text,
+            }, token);
+        } else if (values.image !== undefined) {
+            console.log("update image")
+            await saveImage(post.id, values.image);
+        }
+        setLoading(false);
+        await fetchPosts();
+    };
 
     useEffect(() => {
         if (posts === null && loading === true) {
@@ -74,8 +114,8 @@ const Posts = ({setCreatePostRef: setCreatePostRef}) => {
 
     return <>
         {posts && posts.map(post => (
-            <Row className="mb-3">
-                <Post key={post.id} post={post}/>
+            <Row key={post.id} className="mb-3">
+                <Post key={post.id} post={post} handleDelete={handleDelete} handleEdit={handleEdit}/>
             </Row>
         ))}
         <Modal show={showCreateModel} onHide={() => setShowCreateModel(false)}>
@@ -86,7 +126,14 @@ const Posts = ({setCreatePostRef: setCreatePostRef}) => {
                 <CreatePost validated={validated} handleSubmit={handleSubmit} loading={loading}/>
             </Modal.Body>
         </Modal>
-
+        <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+            <Modal.Header closeButton>
+                Editing Post
+            </Modal.Header>
+            <Modal.Body>
+                <EditPost key="edit-post" validated={editValidated} post={editingPost} handleEditSubmit={handleEditSubmit} loading={loading}/>
+            </Modal.Body>
+        </Modal>
     </>;
 };
 
