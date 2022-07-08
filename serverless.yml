@@ -66,16 +66,6 @@ functions:
           - s3:PutObject
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGE_S3_BUCKET}/*
-          
-  hello-world:
-    handler: gobin/hello-world
-    events:
-      - http:
-          path: /hello
-          method: get
-          cors: true
-          authorizer:
-            name: auth
 
 resources:
   Resources:
