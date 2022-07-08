@@ -13,6 +13,12 @@ browser caches the previous image, you will need to refresh the page to get the 
 
 You will need a token, the UI will output the token to the developer console after login
 
+## Docker
+
+[Dockerfile](backend/Dockerfile)
+
+[Docker image](https://hub.docker.com/repository/docker/caboose0013/udacity-capstone)
+
 ## Structure
 
 ### Lambdas
